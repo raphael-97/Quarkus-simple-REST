@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    image: postgres:12.17-alpine3.19
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+
+  backend:
+    image: quarkusbackend
+    build:
+      context: .
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      QUARKUS_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/postgres
+      QUARKUS_DATASOURCE_USERNAME: postgres
+      QUARKUS_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres-db
