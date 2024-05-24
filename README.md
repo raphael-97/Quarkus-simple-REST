@@ -8,7 +8,7 @@ git clone https://github.com/raphael-97/Quarkus-simple-REST
 
 2. Run in the root of this project
 ```
-./mvnw compile quarkus:dev
+mvnw compile quarkus:dev
 
 or 
 
