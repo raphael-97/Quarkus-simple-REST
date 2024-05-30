@@ -7,7 +7,8 @@ import jakarta.ws.rs.core.Response;
 import lombok.NoArgsConstructor;
 import org.acme.business.CustomerService;
 import org.acme.domain.Customer;
-import org.acme.dto.CustomerDto;
+import org.acme.dto.CustomerRequest;
+import org.acme.dto.CustomerResponse;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 
 import java.net.URI;
@@ -27,7 +28,7 @@ public class CustomerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<CustomerDto> getCustomers() {
+    public List<CustomerResponse> getCustomers() {
         return customerService.getCustomers();
     }
 
@@ -46,8 +47,8 @@ public class CustomerResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response createCustomer(@RequestBody CustomerDto customerDto) {
-        CustomerDto customerDtoResponse = customerService.createCustomer(customerDto);
+    public Response createCustomer(@RequestBody CustomerRequest customerDto) {
+        CustomerResponse customerDtoResponse = customerService.createCustomer(customerDto);
         return Response.created(URI.create("/customers/" + customerDtoResponse.getId()))
                 .entity(customerDtoResponse).build();
     }
@@ -56,8 +57,8 @@ public class CustomerResource {
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateCustomer(@PathParam("id") Long id,@RequestBody CustomerDto customerDto) {
-        CustomerDto customerDtoResponse = customerService.updateCustomer(id, customerDto);
+    public Response updateCustomer(@PathParam("id") Long id,@RequestBody CustomerResponse customerDto) {
+        CustomerResponse customerDtoResponse = customerService.updateCustomer(id, customerDto);
         return Response.ok(customerDtoResponse).build();
     }
 

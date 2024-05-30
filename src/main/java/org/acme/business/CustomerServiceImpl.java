@@ -5,7 +5,8 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import org.acme.domain.Customer;
-import org.acme.dto.CustomerDto;
+import org.acme.dto.CustomerRequest;
+import org.acme.dto.CustomerResponse;
 import org.acme.persistance.CustomerRepository;
 
 import java.util.List;
@@ -23,10 +24,10 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<CustomerDto> getCustomers() {
+    public List<CustomerResponse> getCustomers() {
         return customerRepository.findAll()
                 .stream()
-                .map(this::toDto)
+                .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
@@ -37,16 +38,15 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public CustomerDto createCustomer(CustomerDto customerDto) {
+    public CustomerResponse createCustomer(CustomerRequest customerDto) {
         Customer savedCustomer = toCustomer(customerDto);
         customerRepository.persist(savedCustomer);
-        customerDto.setId(savedCustomer.getId());
-        return customerDto;
+        return toResponse(savedCustomer);
     }
 
     @Override
     @Transactional
-    public CustomerDto updateCustomer(Long id, CustomerDto customerDto) {
+    public CustomerResponse updateCustomer(Long id, CustomerResponse customerDto) {
         Customer entity = customerRepository.findByIdOptional(id).orElseThrow(NotFoundException::new);
         entity.setFirstName(customerDto.getFirstName());
         entity.setLastName(customerDto.getLastName());
@@ -55,7 +55,7 @@ public class CustomerServiceImpl implements CustomerService {
         entity.setPostcode(customerDto.getPostcode());
 
         customerRepository.persist(entity);
-        return toDto(entity);
+        return toResponse(entity);
     }
 
     @Override
@@ -65,8 +65,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
 
-    private CustomerDto toDto(Customer customer) {
-        return CustomerDto.builder()
+    private CustomerResponse toResponse(Customer customer) {
+        return CustomerResponse.builder()
                 .id(customer.getId())
                 .firstName(customer.getFirstName())
                 .lastName(customer.getLastName())
@@ -76,9 +76,8 @@ public class CustomerServiceImpl implements CustomerService {
                 .build();
     }
 
-    private Customer toCustomer(CustomerDto customerDto) {
+    private Customer toCustomer(CustomerRequest customerDto) {
         return Customer.builder()
-                .id(customerDto.getId())
                 .firstName(customerDto.getFirstName())
                 .lastName(customerDto.getLastName())
                 .age(customerDto.getAge())

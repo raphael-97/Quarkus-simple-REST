@@ -1,20 +1,21 @@
 package org.acme.business;
 
 import org.acme.domain.Customer;
-import org.acme.dto.CustomerDto;
+import org.acme.dto.CustomerRequest;
+import org.acme.dto.CustomerResponse;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface CustomerService {
 
-    List<CustomerDto> getCustomers();
+    List<CustomerResponse> getCustomers();
 
     Optional<Customer> getCustomerById(Long id);
 
-    CustomerDto createCustomer(CustomerDto customerDto);
+    CustomerResponse createCustomer(CustomerRequest customerDto);
 
-    CustomerDto updateCustomer(Long id, CustomerDto customerDto);
+    CustomerResponse updateCustomer(Long id, CustomerResponse customerDto);
 
     void deleteCustomer(Long id);
 }
