@@ -15,8 +15,12 @@ import org.acme.exceptions.WrongInputException;
 import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 
+import java.lang.reflect.Field;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Path("/customers")
 @NoArgsConstructor
@@ -24,10 +28,16 @@ public class CustomerResource {
 
     private CustomerService customerService;
 
+    private List<String> customerFields;
+
 
     @Inject
     public CustomerResource(CustomerService customerService) {
         this.customerService = customerService;
+        customerFields = Arrays.stream(Customer.class.getDeclaredFields())
+                .map(Field::getName)
+                .filter(elem -> elem.charAt(0) != '$')
+                .collect(Collectors.toList());
     }
 
     @ServerExceptionMapper
@@ -41,14 +51,27 @@ public class CustomerResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCustomers(@QueryParam("page") int page, @QueryParam("limit") int limit) throws WrongInputException {
+    public Response getCustomers(@QueryParam("page") int page,
+                                 @QueryParam("limit") int limit,
+                                 @QueryParam("sort_by") @DefaultValue("id") String sortBy,
+                                 @QueryParam("sort_order") @DefaultValue("asc") String sortOrder) throws WrongInputException {
 
         if(page < 0)
-            throw new WrongInputException("QueryParam page can not be smaller than 0", Response.Status.BAD_REQUEST.getStatusCode());
+            throw new WrongInputException("QueryParam page can not be smaller than 0",
+                    Response.Status.BAD_REQUEST.getStatusCode());
         if(limit <= 0)
-            throw new WrongInputException("QueryParam limit can not be smaller than 1", Response.Status.BAD_REQUEST.getStatusCode());
+            throw new WrongInputException("QueryParam limit can not be smaller than 1",
+                    Response.Status.BAD_REQUEST.getStatusCode());
 
-        CustomerPageResponse customers = customerService.getCustomers(page, limit);
+        if(!customerFields.contains(sortBy))
+            throw new WrongInputException("QueryParam sort_by only accepts: " + String.join(", ", customerFields),
+                    Response.Status.BAD_REQUEST.getStatusCode());
+
+        if(!sortOrder.equals("asc") && !sortOrder.equals("desc"))
+            throw new WrongInputException("QueryParam sort_order has to be asc or desc",
+                    Response.Status.BAD_REQUEST.getStatusCode());
+
+        CustomerPageResponse customers = customerService.getCustomers(page, limit, sortBy, sortOrder);
         return Response.ok(customers).build();
     }
 

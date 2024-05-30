@@ -2,6 +2,7 @@ package org.acme.business;
 
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
+import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -25,8 +26,9 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerPageResponse getCustomers(int page, int limit) {
-        PanacheQuery<Customer> allCustomers = customerRepository.findAll();
+    public CustomerPageResponse getCustomers(int page, int limit, String sortBy, String sortOrder) {
+        Sort.Direction direction = sortOrder.equals("desc") ? Sort.Direction.Descending : Sort.Direction.Ascending;
+        PanacheQuery<Customer> allCustomers = customerRepository.findAll(Sort.by(sortBy, direction));
 
         allCustomers.page(Page.ofSize(limit));
 

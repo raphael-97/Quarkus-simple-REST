@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface CustomerService {
 
-    CustomerPageResponse getCustomers(int page, int limit);
+    CustomerPageResponse getCustomers(int page, int limit, String sortBy, String sortOrder);
 
     Optional<Customer> getCustomerById(Long id);
 
