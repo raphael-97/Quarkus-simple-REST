@@ -1,15 +1,15 @@
 package org.acme.business;
 
 import org.acme.domain.Customer;
+import org.acme.dto.CustomerPageResponse;
 import org.acme.dto.CustomerRequest;
 import org.acme.dto.CustomerResponse;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface CustomerService {
 
-    List<CustomerResponse> getCustomers();
+    CustomerPageResponse getCustomers(int page, int limit);
 
     Optional<Customer> getCustomerById(Long id);
 

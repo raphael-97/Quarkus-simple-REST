@@ -10,4 +10,5 @@ public class CustomerRepository implements PanacheRepository<Customer> {
     public Customer findByFirstName(String firstName) {
         return find("firstName", firstName).firstResult();
     }
+
 }

@@ -1,17 +1,18 @@
 package org.acme.business;
 
+import io.quarkus.hibernate.orm.panache.PanacheQuery;
+import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import org.acme.domain.Customer;
+import org.acme.dto.CustomerPageResponse;
 import org.acme.dto.CustomerRequest;
 import org.acme.dto.CustomerResponse;
 import org.acme.persistance.CustomerRepository;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class CustomerServiceImpl implements CustomerService {
@@ -24,11 +25,19 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public List<CustomerResponse> getCustomers() {
-        return customerRepository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+    public CustomerPageResponse getCustomers(int page, int limit) {
+        PanacheQuery<Customer> allCustomers = customerRepository.findAll();
+
+        allCustomers.page(Page.ofSize(limit));
+
+        return CustomerPageResponse.builder()
+                .total_pages(allCustomers.pageCount())
+                .current_page(page)
+                .next_page(page + 1 >= allCustomers.pageCount() ? null : page + 1)
+                .prev_page(page <= 0 ? null : page - 1)
+                .total_records((int)allCustomers.count())
+                .records(allCustomers.page(Page.of(page, limit)).stream().map(this::toResponse).toList())
+                .build();
     }
 
     @Override
